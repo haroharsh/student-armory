@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/pdf")
 public class ImageToPdfController {
 
     private final ImageToPdfService service;
@@ -23,7 +22,10 @@ public class ImageToPdfController {
         this.service = service;
     }
 
-    @PostMapping(value = "/convert", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(
+            value = {"/convert", "/api/convert", "/api/pdf/convert"},
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     public ResponseEntity<byte[]> convert(
             @RequestParam(name = "file", required = false) MultipartFile singleFile,
             @RequestParam(name = "files", required = false) List<MultipartFile> multipleFiles,
@@ -63,7 +65,7 @@ public class ImageToPdfController {
                 .body(pdfBytes);
     }
 
-    @GetMapping("/health")
+    @GetMapping({"/health", "/api/health", "/api/pdf/health"})
     public ResponseEntity<Map<String, Object>> health() {
         return ResponseEntity.ok(Map.of(
                 "status", "UP",

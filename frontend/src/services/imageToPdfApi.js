@@ -1,11 +1,16 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/pdf";
+const rawEnvUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/pdf";
+const API_BASE_URL = rawEnvUrl.trim().replace(/\/+$/, "");
 
 /**
  * Checks backend health
  */
 export async function checkBackendHealth() {
   try {
-    const response = await fetch(`${API_BASE_URL}/health`, {
+    const healthUrl = API_BASE_URL.endsWith("/health")
+      ? API_BASE_URL
+      : `${API_BASE_URL}/health`;
+
+    const response = await fetch(healthUrl, {
       method: "GET",
       headers: { Accept: "application/json" },
     });
@@ -32,9 +37,14 @@ export async function convertImageToPdf(files, landscape = false) {
   const formData = new FormData();
   fileList.forEach((file) => {
     formData.append("files", file);
+    formData.append("file", file); // for backwards compatibility
   });
 
-  const url = `${API_BASE_URL}/convert?landscape=${Boolean(landscape)}`;
+  const convertEndpoint = API_BASE_URL.endsWith("/convert")
+    ? API_BASE_URL
+    : `${API_BASE_URL}/convert`;
+
+  const url = `${convertEndpoint}?landscape=${Boolean(landscape)}`;
 
   const response = await fetch(url, {
     method: "POST",
