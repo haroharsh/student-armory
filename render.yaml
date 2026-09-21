@@ -1,0 +1,35 @@
+services:
+  # Spring Boot Backend Web Service
+  - type: web
+    name: student-armory-backend
+    env: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    plan: free
+    region: frankfurt
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: APYHUB_API_KEY
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        value: "*"
+
+  # React Frontend Static Site
+  - type: web
+    name: student-armory-frontend
+    env: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/dist
+    plan: free
+    region: frankfurt
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: student-armory-backend
+          property: host

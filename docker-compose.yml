@@ -1,0 +1,26 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: student-armory-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - APYHUB_API_KEY=${APYHUB_API_KEY:-80ba68401961d4d54aef1b1ad304f93819acbc3adff849b31c8900383a6e0e03}
+      - CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000,http://localhost:80,https://*
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=http://localhost:8080/api/pdf
+    container_name: student-armory-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
